@@ -167,6 +167,9 @@ function Globe() {
         }
         animate();
 
+        return () => {
+          refContainer.current.removeChild(renderer.domElement);
+      }
         }, []);
 
     return <div ref={refContainer}>
