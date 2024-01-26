@@ -7,23 +7,14 @@ import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { InteractionManager } from 'three.interactive';
 import * as TWEEN from '@tweenjs/tween.js'
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 
 
 
 function Globe() {
     const refContainer = useRef(null);
     // const [focusedMarker, setFocusedMarker] = useState(null)
-    var ready = false
 
     useEffect(() => {
-
-
-
-
-
             // Setup renderer
             const renderer = new THREE.WebGLRenderer();
 
@@ -41,50 +32,6 @@ function Globe() {
             camera.updateProjectionMatrix();
             camera.position.z = 300;
         
-      //bloom renderer
-      const renderScene = new RenderPass(scene, camera);
-      const bloomPass = new UnrealBloomPass(
-        new THREE.Vector2(window.innerWidth, window.innerHeight),
-        1.5,
-        0.4,
-        0.85
-      );
-      bloomPass.threshold = 0;
-      bloomPass.strength = 2; //intensity of glow
-      bloomPass.radius = 0;
-      const bloomComposer = new EffectComposer(renderer);
-      bloomComposer.setSize(window.innerWidth, window.innerHeight);
-      bloomComposer.renderToScreen = true;
-      bloomComposer.addPass(renderScene);
-      bloomComposer.addPass(bloomPass);
-      
-      //sun object
-      const color = new THREE.Color("#FDB813");
-      const geometry = new THREE.IcosahedronGeometry(1, 15);
-      const material = new THREE.MeshBasicMaterial({ color: color });
-      const sphere = new THREE.Mesh(geometry, material);
-      sphere.position.set(0, 0, 0);
-      sphere.layers.set(1);
-      scene.add(sphere);
-      
-      // galaxy geometry
-      const starGeometry = new THREE.SphereGeometry(80, 64, 64);
-      
-      // galaxy material
-      const starMaterial = new THREE.MeshBasicMaterial({
-        map: new THREE.TextureLoader("texture/galaxy1.png"),
-        side: THREE.BackSide,
-        transparent: true,
-      });
-      
-      // galaxy mesh
-      const starMesh = new THREE.Mesh(starGeometry, starMaterial);
-      starMesh.layers.set(1);
-      scene.add(starMesh);
-      
-      //ambient light
-      const ambientlight = new THREE.AmbientLight(0xffffff, 0.1);
-      scene.add(ambientlight);
             // Add camera controls
 
 
@@ -122,14 +69,12 @@ function Globe() {
         .bumpImageUrl('./bumpmap.jpg')
         .customLayerData(images)
         .customThreeObject(d => {
-          const color = new THREE.Color("#FDB813");
-          const geometry = new THREE.IcosahedronGeometry(1, 15);
-          const material = new THREE.MeshBasicMaterial({ color: color });
-          const sphere = new THREE.Mesh(geometry, material);
-          // sphere.position.set(0, 0, 0);
-          sphere.layers.set(1);
-          // scene.add(sphere);
-          return sphere
+          var orignalMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(d.radius),
+            new THREE.MeshLambertMaterial({color: d.color})
+          )
+  
+          return orignalMesh
         })
 
         .customThreeObjectUpdate((obj, d) => {
@@ -191,7 +136,7 @@ function Globe() {
           Object.assign(obj.position, Globe.getCoords(d.lat, d.lng, d.alt));
 
         })
-        .onGlobeReady(()=>{ready = true})
+        // .onReady(()=>{props.setLoadingGlobe(false)})
         const CLOUDS_IMG_URL = './clouds.png'; // from https://github.com/turban/webgl-earth
         const CLOUDS_ALT = 0.004;
         const CLOUDS_ROTATION_SPEED = -0.006; // deg/frame
@@ -217,24 +162,12 @@ function Globe() {
           orbitControls.update()
           interactionManager.update();
           rotateClouds();
+          renderer.render(scene, camera);
           requestAnimationFrame(animate);
-
-          if(ready){
-            // camera.layers.set(1);
-              bloomComposer.render();
-
-
-          }
-
-            // camera.layers.set(0);
-            // renderer.render(scene, camera);
-
         }
         animate();
-        return () => {
-          refContainer.current.removeChild(renderer.domElement);
-      };
-  }, []);
+
+        }, []);
 
     return <div ref={refContainer}>
            </div>
