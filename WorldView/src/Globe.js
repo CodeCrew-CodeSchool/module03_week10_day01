@@ -6,14 +6,24 @@ import images from "./data.json"
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { InteractionManager } from 'three.interactive';
+import * as TWEEN from '@tweenjs/tween.js'
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 
-import { Tween, Easing, update } from "es6-tween"
+
 
 function Globe() {
     const refContainer = useRef(null);
     // const [focusedMarker, setFocusedMarker] = useState(null)
+    var ready = false
 
     useEffect(() => {
+
+
+
+
+
             // Setup renderer
             const renderer = new THREE.WebGLRenderer();
 
@@ -29,17 +39,58 @@ function Globe() {
             const camera = new THREE.PerspectiveCamera();
             camera.aspect = window.innerWidth/window.innerHeight;
             camera.updateProjectionMatrix();
-            camera.position.z = 500;
+            camera.position.z = 300;
         
+      //bloom renderer
+      const renderScene = new RenderPass(scene, camera);
+      const bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(window.innerWidth, window.innerHeight),
+        1.5,
+        0.4,
+        0.85
+      );
+      bloomPass.threshold = 0;
+      bloomPass.strength = 2; //intensity of glow
+      bloomPass.radius = 0;
+      const bloomComposer = new EffectComposer(renderer);
+      bloomComposer.setSize(window.innerWidth, window.innerHeight);
+      bloomComposer.renderToScreen = true;
+      bloomComposer.addPass(renderScene);
+      bloomComposer.addPass(bloomPass);
+      
+      //sun object
+      const color = new THREE.Color("#FDB813");
+      const geometry = new THREE.IcosahedronGeometry(1, 15);
+      const material = new THREE.MeshBasicMaterial({ color: color });
+      const sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(0, 0, 0);
+      sphere.layers.set(1);
+      scene.add(sphere);
+      
+      // galaxy geometry
+      const starGeometry = new THREE.SphereGeometry(80, 64, 64);
+      
+      // galaxy material
+      const starMaterial = new THREE.MeshBasicMaterial({
+        map: new THREE.TextureLoader("texture/galaxy1.png"),
+        side: THREE.BackSide,
+        transparent: true,
+      });
+      
+      // galaxy mesh
+      const starMesh = new THREE.Mesh(starGeometry, starMaterial);
+      starMesh.layers.set(1);
+      scene.add(starMesh);
+      
+      //ambient light
+      const ambientlight = new THREE.AmbientLight(0xffffff, 0.1);
+      scene.add(ambientlight);
             // Add camera controls
-            const tbControls = new TrackballControls(camera, renderer.domElement);
-            tbControls.minDistance = 101;
-            tbControls.rotateSpeed = 5;
-            tbControls.zoomSpeed = 0.8;
+
 
             const orbitControls = new OrbitControls(camera, renderer.domElement)
             orbitControls.autoRotate = true
-            orbitControls.autoRotateSpeed = -1.0
+            orbitControls.autoRotateSpeed = -.3
             orbitControls.enableDamping = true
             orbitControls.enablePan = false
             orbitControls.maxDistance = 800
@@ -71,12 +122,14 @@ function Globe() {
         .bumpImageUrl('./bumpmap.jpg')
         .customLayerData(images)
         .customThreeObject(d => {
-          var orignalMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(d.radius),
-            new THREE.MeshLambertMaterial({color: d.color})
-          )
-  
-          return orignalMesh
+          const color = new THREE.Color("#FDB813");
+          const geometry = new THREE.IcosahedronGeometry(1, 15);
+          const material = new THREE.MeshBasicMaterial({ color: color });
+          const sphere = new THREE.Mesh(geometry, material);
+          // sphere.position.set(0, 0, 0);
+          sphere.layers.set(1);
+          // scene.add(sphere);
+          return sphere
         })
 
         .customThreeObjectUpdate((obj, d) => {
@@ -90,15 +143,23 @@ function Globe() {
           }
           console.log(source)
 
-          var tween = new Tween(source)
-          .to({ x: coords.x, y: coords.y, z: coords.z }, 120)
-          .easing(Easing.Quadratic.Out)
-          .on("update", () => {
-            Object.assign(obj.position, source)
-            console.log("updating") 
-          })
             console.log("tweening")
-            tween.start()
+
+            // let coords = {x: 0, y: 0} // Start at (0, 0)
+
+            const tween = new TWEEN.Tween(source, false) // Create a new tween that modifies 'coords'.
+              .to(coords, 2000) // Move to (300, 200) in 1 second.
+              .easing(TWEEN.Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
+              .onUpdate(() => {
+              Object.assign(obj.position, source)
+
+              })
+              .start() // Start the tween immediately.
+              function animate(time) {
+                tween.update(time)
+                requestAnimationFrame(animate)
+              }
+              requestAnimationFrame(animate)
             counter++
           
           marks[d.id] = obj
@@ -124,23 +185,13 @@ function Globe() {
             var coords = { x: -72.76561630906853, y: 59.29531937925213, z: 39.91528758350497 } 
             var source = Object.assign({}, coords)
 
-            var tween = new Tween(source)
-            .to({ x: coords.x, y: coords.y, z: coords.z }, 120)
-            .easing(Easing.Quadratic.Out)
-            .on("update", () => {
-              Object.assign(obj.position, source)
-              console.log("updating") 
-            })
-              console.log("tweening")
-              tween.start()
-            event.target.scale.set(1.0, 1.0, 1.0);
           });
           interactionManager.add(obj);
 
           Object.assign(obj.position, Globe.getCoords(d.lat, d.lng, d.alt));
 
         })
-        // .onReady(()=>{props.setLoadingGlobe(false)})
+        .onGlobeReady(()=>{ready = true})
         const CLOUDS_IMG_URL = './clouds.png'; // from https://github.com/turban/webgl-earth
         const CLOUDS_ALT = 0.004;
         const CLOUDS_ROTATION_SPEED = -0.006; // deg/frame
@@ -163,16 +214,27 @@ function Globe() {
         // start animation loop
         function animate() {
           // Frame cycle
-          tbControls.update();
-            orbitControls.update()
+          orbitControls.update()
           interactionManager.update();
           rotateClouds();
-          renderer.render(scene, camera);
           requestAnimationFrame(animate);
+
+          if(ready){
+            // camera.layers.set(1);
+              bloomComposer.render();
+
+
+          }
+
+            // camera.layers.set(0);
+            // renderer.render(scene, camera);
+
         }
         animate();
-
-        }, []);
+        return () => {
+          refContainer.current.removeChild(renderer.domElement);
+      };
+  }, []);
 
     return <div ref={refContainer}>
            </div>
