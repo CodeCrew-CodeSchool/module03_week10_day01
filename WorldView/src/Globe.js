@@ -15,6 +15,8 @@ function Globe() {
     // const [focusedMarker, setFocusedMarker] = useState(null)
 
     useEffect(() => {
+
+      
             // Setup renderer
             const renderer = new THREE.WebGLRenderer();
 
@@ -47,6 +49,7 @@ function Globe() {
             orbitControls.saveState()
     
 
+
             const interactionManager = new InteractionManager(renderer, camera, renderer.domElement);
 
         const N = 300;
@@ -69,10 +72,20 @@ function Globe() {
         .bumpImageUrl('./bumpmap.jpg')
         .customLayerData(images)
         .customThreeObject(d => {
-          var orignalMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(d.radius),
-            new THREE.MeshLambertMaterial({color: d.color})
-          )
+          var orignalMesh = new THREE.Group();
+
+          for( let i=0; i<1; i+=0.05 )
+          {
+              var torus = new THREE.Mesh(
+                  new THREE.SphereGeometry(1.7+i),
+                    new THREE.MeshLambertMaterial( {
+                        color: d.color,
+                        transparent: true,
+                        opacity: 1-Math.pow(i,0.1)
+                    })
+              );	
+              orignalMesh.add( torus );
+          }
   
           return orignalMesh
         })
