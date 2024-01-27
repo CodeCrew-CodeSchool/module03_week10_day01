@@ -14,160 +14,168 @@ function Globe() {
 
     useEffect(() => {
       // Setup renderer
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      refContainer.current && refContainer.current.appendChild( renderer.domElement );
-    
-      // Setup scene
-      const scene = new THREE.Scene();
-      scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
-      scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
-    
+      const renderer = create3dRenderer(refContainer)
+      // Setup scener
+      const world = create3dWorld()
       // Setup camera
-      const camera = new THREE.PerspectiveCamera();
-      camera.aspect = window.innerWidth/window.innerHeight;
-      camera.updateProjectionMatrix();
-      camera.position.z = 300;
-  
+      const camera = create3dCamera()
       // Add camera controls
-      const orbitControls = new OrbitControls(camera, renderer.domElement)
-      orbitControls.autoRotate = true
-      orbitControls.autoRotateSpeed = -.3
-      orbitControls.enableDamping = true
-      orbitControls.enablePan = false
-      orbitControls.maxDistance = 800
-      orbitControls.zoomSpeed = 0.8
-      orbitControls.rotateSpeed = 1.2
-      orbitControls.minZoom = 300
-      orbitControls.saveState()
-  
-
+      const cameraControls = createControls(camera, renderer)
+      //Other controls
       const interactionManager = new InteractionManager(renderer, camera, renderer.domElement);
 
-      const N = 300;
         
       images.forEach((entry, index) => {
-          entry.id = index
-          entry.size = 0.04
-          entry.color = "#ffff00"
-          entry.alt = 0.02
-          entry.radius = 1.7
-          entry.lat = (Math.random() - 0.5) * 180
-          entry.lng = (Math.random() - 0.5) * 360
-        })
-      var counter = 0
-      var marks = {}
-      const markerSvg = `<svg viewBox="-4 0 36 36">
-      <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
-      <circle fill="black" cx="14" cy="14" r="7"></circle>
-    </svg>`;
+        entry.id = index
+        entry.size = 0.04
+        entry.color = "#ffff00"
+        entry.alt = 0
+        entry.radius = 1.7
+        entry.lat = (Math.random() - 0.5) * 180
+        entry.lng = (Math.random() - 0.5) * 360
+      })
 
-      const Globe = new ThreeGlobe()
-        .globeImageUrl('./map.jpg')
-        .bumpImageUrl('./bumpmap.jpg')
-        .htmlElementsData(images)
-        .htmlElement(d => {
-          const el = document.createElement('div');
-          el.innerHTML = markerSvg;
-          el.style.color = d.color;
-          el.style.width = `${d.size}px`;
-          return el;
-        });
-  
-        // .customLayerData(images)
-        // .customThreeObject(d => {
-        //   var orignalMesh = new THREE.Mesh(
-        //     new THREE.SphereGeometry(d.radius),
-        //     new THREE.MeshLambertMaterial({color: d.color})
-        //   )
-        //   return orignalMesh
-        // })
-        // .customThreeObjectUpdate((obj, d) => {
-        //   var coords = Globe.getCoords(d.lat, d.lng, d.alt)
-        //   var source = Object.assign({}, coords)
-        //   if(d.lat >= 0) {
-        //     source.y = source.y+300
-        //   }
-        //   else{
-        //     source.y = source.y-300
-        //   }
+      // Create 3D Globe object
+      const Globe = createGlobe3dObject(images)
+      
 
-        //   const tween = new TWEEN.Tween(source, false) // Create a new tween that modifies 'coords'.
-        //     .to(coords, 2000) // Move to (300, 200) in 1 second.
-        //     .easing(TWEEN.Easing.Quadratic.InOut) // Use an easing function to make the animation smooth.
-        //     .onUpdate(() => {
-        //       Object.assign(obj.position, source)
-        //     })
-        //     .start() // Start the tween immediately.
-        //   function animate(time) {
-        //       tween.update(time)
-        //       requestAnimationFrame(animate)
-        //   }
-        //       requestAnimationFrame(animate)
-        //     counter++
+
+
+        .customThreeObjectUpdate((obj, d) => {
+          //Convert latitude, longitude and altitude values of marker to X, Y, and Z position values
+          var marker3dCoordinates = Globe.getCoords(d.lat, d.lng, d.alt)
+
+          //Set the position of the marker object to the calculated position
+          Object.assign(obj.position, marker3dCoordinates);
+   
+
+          obj.addEventListener('mouseover', (event) => {
+            event.target.material.color.set(0xff0000);
+            document.body.style.cursor = 'pointer';
+            console.log("hovering")
+          });
+
+          obj.addEventListener('mouseout', (event) => {
+            event.target.material.color.set(0xffff00);
+            document.body.style.cursor = 'default';
+          });
           
-        //   marks[d.id] = obj
+          obj.addEventListener('click', (event) => {
+            console.log("Clicked on marker")
+          });
+          interactionManager.add(obj);
 
-        //   obj.cursor = "pointer"
-        //   obj.addEventListener("click", function (ev) {
-        //     console.log("Clicked on marker")
 
-        //   })
-        //   obj.addEventListener('mouseover', (event) => {
-        //     event.target.material.color.set(0xff0000);
-        //     document.body.style.cursor = 'pointer';
-        //     console.log("hovering")
-        //   });
-        //   obj.addEventListener('mouseout', (event) => {
-        //     event.target.material.color.set(0xffff00);
-        //     document.body.style.cursor = 'default';
-        //   });
-        //   obj.addEventListener('mousedown', (event) => {
-        //     event.target.scale.set(1.1, 1.1, 1.1);
-        //   });
-        //   obj.addEventListener('click', (event) => {
-        //     console.log("clicked")
+          var source = Object.assign({}, marker3dCoordinates)
 
-        //   });
-        //   interactionManager.add(obj);
-        //   Object.assign(obj.position, Globe.getCoords(d.lat, d.lng, d.alt));
-        // })
-        // .onReady(()=>{props.setLoadingGlobe(false)})
 
-        const CLOUDS_IMG_URL = './clouds.png'; // from https://github.com/turban/webgl-earth
-        const CLOUDS_ALT = 0.004;
-        const CLOUDS_ROTATION_SPEED = -0.006; // deg/frame
-        const Clouds = new THREE.Mesh(new THREE.SphereGeometry(Globe.getGlobeRadius() * (1 + CLOUDS_ALT), 75, 75));
-        new THREE.TextureLoader().load(CLOUDS_IMG_URL, cloudsTexture => {
-          Clouds.material = new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true });
+          if(d.lat >= 0) {
+            source.y = source.y+300
+          }
+          else{
+            source.y = source.y-300
+          }
+          const slideInAnimation = new TWEEN.Tween(source, false)
+            .to(marker3dCoordinates, 2000)
+            .easing(TWEEN.Easing.Quadratic.InOut) 
+            .onUpdate(() => {
+              Object.assign(obj.position, source)
+            })
+            .start()
+
+          function animate(time) {
+            slideInAnimation.update(time)
+            requestAnimationFrame(animate)
+          }
+          requestAnimationFrame(animate)
+
         });
-        scene.add(Globe);
-        scene.add(Clouds);
-        function rotateClouds() {
-          Clouds.rotation.y += (CLOUDS_ROTATION_SPEED * Math.PI / 180) *10;
-        }
-    
+      world.add(Globe);
+
+      // Create 3D clouds object
+      const Clouds = createClouds3dObject(Globe.getGlobeRadius())
+      world.add(Clouds);
 
 
-        // start animation loop
-        function animate() {
-          // Frame cycle
-          orbitControls.update()
-          interactionManager.update();
-          rotateClouds();
-          renderer.render(scene, camera);
-          requestAnimationFrame(animate);
-        }
-        animate();
+      // start animation loop
+      function animate() {
+        cameraControls.update()
+        interactionManager.update();
+        Clouds.rotation.y += (-0.006 * Math.PI / 180) *10;
+        renderer.render(world, camera);
+        requestAnimationFrame(animate);
+      }
+      animate();
 
-    return () => {
-        refContainer.current.removeChild(renderer.domElement);
-    };
-        }, []);
+      return () => {
+          refContainer.current.removeChild(renderer.domElement);
+      };
+    }, []);
 
-    return <div ref={refContainer}>
-           </div>
+    return <div ref={refContainer}></div>
 
 }
 
 export default Globe;
+
+
+function create3dRenderer(referenceContainer) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  if (referenceContainer.current) {
+    referenceContainer.current.appendChild(renderer.domElement);
+  }
+  return renderer;
+}
+
+function create3dWorld() {
+  const scene = new THREE.Scene();
+  scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
+  scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
+  return scene;
+}
+
+function create3dCamera() {
+  const camera = new THREE.PerspectiveCamera();
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  camera.position.z = 250;
+  return camera;
+}
+
+function createControls(camera, renderer) {
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = -.3;
+  controls.enableDamping = true;
+  controls.enablePan = false;
+  controls.maxDistance = 800;
+  controls.zoomSpeed = 0.8;
+  controls.rotateSpeed = 1.2;
+  controls.minZoom = 300;
+  controls.saveState();
+  return controls;
+}
+
+function createClouds3dObject(globeRadius) {
+  const cloudsObject = new THREE.Mesh(new THREE.SphereGeometry(globeRadius * (1 + 0.004), 75, 75));
+  new THREE.TextureLoader().load("./clouds.png", cloudsTexture => {
+    cloudsObject.material = new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true });
+  });
+  return cloudsObject;
+}
+
+function createGlobe3dObject(markers) {
+  const globeObject = new ThreeGlobe()
+                        .globeImageUrl('./map.jpg')
+                        .bumpImageUrl('./bumpmap.jpg')
+                        .customLayerData(markers)
+                        .customThreeObject(d => {
+                          var markerSphereMesh = new THREE.Mesh(new THREE.SphereGeometry(d.radius), new THREE.MeshLambertMaterial({color: d.color}))
+                          return markerSphereMesh
+                        })
+
+  return globeObject;
+}
+
