@@ -20,7 +20,7 @@ function Globe() {
       const camera = create3dCamera()
       // Add camera controls
       const cameraControls = createControls(camera, renderer)
-      //Other controls
+      // Other controls
       const interactionManager = new InteractionManager(renderer, camera, renderer.domElement);
 
         
@@ -36,35 +36,36 @@ function Globe() {
 
       // Create 3D Globe object
       const Globe = createGlobe3dObject(imageDataArray)
-                      .customThreeObjectUpdate((marker3dObject, ImageDataObject) => {
-                        // //Convert latitude, longitude and altitude values of marker to X, Y, and Z position values
-                        var marker3dCoordinates = Globe.getCoords(ImageDataObject.latitude, ImageDataObject.longitude, ImageDataObject.altitude)
-                        
-                        //Set the position of the marker object to the calculated position
-                        marker3dObject.position.x = marker3dCoordinates.x
-                        marker3dObject.position.y = marker3dCoordinates.y
-                        marker3dObject.position.z = marker3dCoordinates.z
 
-                        //Add event listeners to the marker object
-                        marker3dObject.addEventListener('mouseover', (event) => {
-                          event.target.material.color.set(0xff0000);
-                          document.body.style.cursor = 'pointer';
-                          console.log("hovering...")
-                        });
-                        marker3dObject.addEventListener('mouseout', (event) => {
-                          event.target.material.color.set(0xffff00);
-                          document.body.style.cursor = 'default';
-                        });
-                        
-                        //Add onclick event listener to the marker object
-                        marker3dObject.addEventListener('click', (event) => {
+      Globe.customThreeObjectUpdate((marker3dObject, ImageDataObject) => {
+        //Convert latitude, longitude and altitude values of marker to X, Y, and Z position values
+        var marker3dCoordinates = Globe.getCoords(ImageDataObject.latitude, ImageDataObject.longitude, ImageDataObject.altitude)
+        
+        //Set the position of the 3d marker object to the calculated position
+        marker3dObject.position.x = marker3dCoordinates.x
+        marker3dObject.position.y = marker3dCoordinates.y
+        marker3dObject.position.z = marker3dCoordinates.z
 
-                        });
+        //When mouse is over 3d marker object, change color to red and cursor style to pointer
+        marker3dObject.addEventListener('mouseover', (event) => {
+          event.target.material.color.set(0xff0000);
+          document.body.style.cursor = 'pointer';
+          console.log("hovering...")
+        });
 
+        //When mouse exits its hover position over 3d marker object, change color back to yellow and cursor style to default
+        marker3dObject.addEventListener('mouseout', (event) => {
+          event.target.material.color.set(0xffff00);
+          document.body.style.cursor = 'default';
+        });
+        
+        //Add onclick event listener to the 3d marker object
+        marker3dObject.addEventListener('click', (event) => {
 
-                        interactionManager.add(marker3dObject);
-                      });
+        });
 
+        interactionManager.add(marker3dObject);
+      });
       world.add(Globe);
 
       // Create 3D clouds object
@@ -87,7 +88,7 @@ function Globe() {
       };
     }, []);
 
-    return <div ref={refContainer}></div>
+    return <div style={{height: "90vh"}}ref={refContainer}></div>
 
 }
 
@@ -112,7 +113,10 @@ export default Globe;
 function create3dRenderer(referenceContainer) {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  var rect = referenceContainer.current.getBoundingClientRect();
+
+  
+  renderer.setSize(rect.width, rect.height);
   if (referenceContainer.current) {
     referenceContainer.current.appendChild(renderer.domElement);
   }
@@ -130,8 +134,7 @@ function create3dCamera() {
   const camera = new THREE.PerspectiveCamera();
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
-  camera.position.z = 250;
-  camera.position.z = 250;
+  camera.position.z = 250;  
   return camera;
 }
 
@@ -159,13 +162,13 @@ function createClouds3dObject(globeRadius) {
 
 function createGlobe3dObject(markers) {
   const globeObject = new ThreeGlobe()
-                        .globeImageUrl('./map.jpg')
-                        .bumpImageUrl('./bumpmap.jpg')
-                        .customLayerData(markers)
-                        .customThreeObject(d => {
-                          var markerSphereMesh = new THREE.Mesh(new THREE.SphereGeometry(d.radius), new THREE.MeshLambertMaterial({color: d.color}))
-                          return markerSphereMesh
-                        })
+                          .globeImageUrl('./map.jpg')
+                          .bumpImageUrl('./bumpmap.jpg')
+                          .customLayerData(markers)
+                          .customThreeObject(d => {
+                            var markerSphereMesh = new THREE.Mesh(new THREE.SphereGeometry(d.radius), new THREE.MeshLambertMaterial({color: d.color}))
+                            return markerSphereMesh
+                          })
 
   globeObject.rotateY(98 * Math.PI / 180);
   globeObject.rotateZ(28 * Math.PI / 180);
