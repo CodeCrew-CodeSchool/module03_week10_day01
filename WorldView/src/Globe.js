@@ -6,10 +6,15 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { InteractionManager } from 'three.interactive';
 import * as TWEEN from '@tweenjs/tween.js'
 import imageDataArray from "./data.json"
+import { useState } from "react";
+
+import "./Globe.css"
+import ImageViewer from "./ImageViewer";
 
 
-function Globe() {
+function Globe(props) {
     const refContainer = useRef(null);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
       // Setup 3D renderer
@@ -61,7 +66,9 @@ function Globe() {
         
         //Add onclick event listener to the 3d marker object
         marker3dObject.addEventListener('click', (event) => {
-
+          console.log("clicked...")
+          // console.log(ImageDataObject.urls.full)
+          setSelectedImage(ImageDataObject)
         });
 
         interactionManager.add(marker3dObject);
@@ -88,7 +95,10 @@ function Globe() {
       };
     }, []);
 
-    return <div style={{height: "90vh"}}ref={refContainer}></div>
+    return <div>
+              <div id="globeContainer" ref={refContainer}></div>
+              <ImageViewer image={selectedImage} setImage={setSelectedImage} />
+           </div>
 
 }
 
