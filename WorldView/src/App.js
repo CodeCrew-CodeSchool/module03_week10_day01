@@ -1,7 +1,6 @@
 import './App.css';
-import Globe from './Globe';
 import Header from './Header';
-import ImageViewer from './ImageViewer';
+import Globe from './Globe';
 
 function App() {
 
