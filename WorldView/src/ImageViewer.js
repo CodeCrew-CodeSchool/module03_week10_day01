@@ -7,15 +7,14 @@ function ImageViewer(props){
 
 
     return <Modal size="xl" fullscreen="md-down" centered show={showModal} onHide={() => { props.setImage(null) }} >
-                            <div className="closeButton">
-                                <img src="./X.png" />
-                            </div>
+                <div className="closeButton" onClick={() => { props.setImage(null) }}>
+                    <img src="./X.png" />
+                </div>
                 <div className='modalMediaContainer'>
-                    
                     <img className='modalMedia' src={props?.image?.urls?.regular}  />
                 </div>
-                <h3>Test</h3>
-            </Modal>
+                <h3>{props?.image?.location?.name}</h3>
+           </Modal>
 
 
 }

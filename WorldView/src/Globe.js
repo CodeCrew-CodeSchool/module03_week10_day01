@@ -67,7 +67,7 @@ function Globe(props) {
         //Add onclick event listener to the 3d marker object
         marker3dObject.addEventListener('click', (event) => {
           console.log("clicked...")
-          // console.log(ImageDataObject.urls.full)
+          console.log(ImageDataObject)
           setSelectedImage(ImageDataObject)
         });
 
