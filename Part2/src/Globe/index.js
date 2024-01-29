@@ -7,6 +7,8 @@ import { InteractionManager } from 'three.interactive';
 import * as TWEEN from '@tweenjs/tween.js'
 import imageDataArray from "./data.json"
 import { useState } from "react";
+import Spinner from 'react-bootstrap/Spinner';
+
 
 import "./Globe.css"
 import ImageViewer from "./ImageViewer";
@@ -14,6 +16,7 @@ import ImageViewer from "./ImageViewer";
 
 function Globe(props) {
     const refContainer = useRef(null);
+    const [globeReady, setGlobeReady] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
@@ -34,8 +37,6 @@ function Globe(props) {
         image.size = 0.04
         image.color = "#ffff00"
         image.radius = 1.7
-        image.latitude = image.location.position.latitude
-        image.longitude = image.location.position.longitude
         image.altitude = 0
       })
 
@@ -55,7 +56,6 @@ function Globe(props) {
         marker3dObject.addEventListener('mouseover', (event) => {
           event.target.material.color.set(0xff0000);
           document.body.style.cursor = 'pointer';
-          console.log("hovering...")
         });
 
         //When mouse exits its hover position over 3d marker object, change color back to yellow and cursor style to default
@@ -71,13 +71,19 @@ function Globe(props) {
           setSelectedImage(ImageDataObject)
         });
 
+        animate3dMarker(marker3dObject, marker3dCoordinates, ImageDataObject.latitude)
+
         interactionManager.add(marker3dObject);
       });
       world.add(Globe);
-
+      
       // Create 3D clouds object
       const clouds3dObject = createClouds3dObject(Globe.getGlobeRadius())
-      world.add(clouds3dObject);
+      // Add 3D clouds object to 3D world when globe is ready
+      Globe.onGlobeReady(() => {
+        setGlobeReady(true)
+        world.add(clouds3dObject);
+      });
 
 
       // start animation loop
@@ -96,7 +102,9 @@ function Globe(props) {
     }, []);
 
     return <div>
-              <div id="globeContainer" ref={refContainer}></div>
+              <div id="globeContainer" ref={refContainer}>
+                <Spinner id="globeLoadingIcon" style={{visibility: globeReady == false ? "visible" : "hidden"}} animation="border" variant="secondary" />
+                </div>
               <ImageViewer image={selectedImage} setImage={setSelectedImage} />
            </div>
 
@@ -160,6 +168,29 @@ function createControls(camera, renderer) {
   controls.minZoom = 300;
   controls.saveState();
   return controls;
+}
+
+function animate3dMarker(marker3dObject, marker3dCoordinates, markerLatitude) {
+  var startingCoordinates = {x: marker3dCoordinates.x, y: marker3dCoordinates.y, z: marker3dCoordinates.z}
+  if (markerLatitude >= 0) {
+    startingCoordinates.y = startingCoordinates.y + 300
+  }else if (markerLatitude < 0) {
+    startingCoordinates.y = startingCoordinates.y - 300
+  }
+  const tween = new TWEEN.Tween(startingCoordinates)
+                      .to(marker3dCoordinates, 2000)
+                      .easing(TWEEN.Easing.Quadratic.Out)
+                      .onUpdate(() => {
+                        marker3dObject.position.x = startingCoordinates.x
+                        marker3dObject.position.y = startingCoordinates.y
+                        marker3dObject.position.z = startingCoordinates.z
+                      })
+                      .start()
+  function animate(time) {
+    TWEEN.update(time);
+    requestAnimationFrame(animate);
+  }
+  animate();
 }
 
 function createClouds3dObject(globeRadius) {
