@@ -3,13 +3,12 @@ import "./ImageViewer.css"
 
 function ImageViewer(props){
     var showModal = props.image != null
-    console.log(props.image)
 
 
     return <Modal size="xl" fullscreen="md-down" centered show={showModal} onHide={() => { props.setImage(null) }} >
-                <div className="closeButton" onClick={() => { props.setImage(null) }}>
-                    <img src="./X.png" />
-                </div>
+
+                <button className="closeButton" onClick={() => { props.setImage(null) }}>X</button>
+
                 <div className='modalMediaContainer'>
                     <img className='modalMedia' src={props?.image?.image_url}  />
                 </div>
