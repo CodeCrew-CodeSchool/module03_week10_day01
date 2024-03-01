@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 
-const APIKEY = "863c4b2810cf186dbf96542bc49f7824eb086019d426ddd391ea0f7941008b8f"
+const APIKEY = ""
 const URL = "https://api.unsplash.com/photos/random/?query=landscape&count=3&client_id=" + APIKEY
 
 app.get('/', async (req, res) => {
