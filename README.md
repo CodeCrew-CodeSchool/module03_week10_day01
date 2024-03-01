@@ -47,7 +47,7 @@ You will deploy a web application called WorldView to the public internet. This 
       <br>
 
      - <details>
-        <summary>Generate an api-key for this application and assign it to the variable declared on line 6 in server.js</summary>
+        <summary>Generate an api-key for this application and assign it as a string to the variable declared on line 6 in server.js</summary>
         <br>
           <img src="./Example/Part2-1.png" width=400/>
       </details>
