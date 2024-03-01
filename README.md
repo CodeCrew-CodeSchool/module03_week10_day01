@@ -22,7 +22,9 @@ You will deploy a web application called WorldView to the public internet. This 
 
 
 ### **Part 1: Worldview Client**
-1. Deploy the worldview client to [render](https://render.com/)
+1. Deploy the Worldview client to [render](https://render.com/)
+   
+   <br>
    
 2. <details>
     <summary>Place the url to the deployed client in the description section of the github repo for this assignment</summary>
@@ -30,8 +32,27 @@ You will deploy a web application called WorldView to the public internet. This 
       <img src="./Example/Part1.png" width=400/>
     </details>
 
+   <br>
 
 
 
 ### **Part 2: WorldView API**
-1. Deploy the worldview api to [render](https://render.com/) 
+
+1. Configure the WorldView API to use a personal api-key to the [unsplash API](https://unsplash.com/documentation#get-a-random-photo)
+
+      <br>
+
+     - Sign up for a developer account on [unsplash.com](https://unsplash.com/developers)
+      
+      <br>
+
+     - <details>
+        <summary>Generate an api-key for this application and assign it to the variable declared on line 6 in server.js</summary>
+        <br>
+          <img src="./Example/Part2-1.png" width=400/>
+      </details>
+      
+      <br>
+
+
+2. Deploy the WorldView API to [render](https://render.com/) 
