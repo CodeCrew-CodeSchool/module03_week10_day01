@@ -5,19 +5,17 @@ import {  useRef } from "react";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { InteractionManager } from 'three.interactive';
 import * as TWEEN from '@tweenjs/tween.js'
-import imageDataArray from "./data.json"
 import { useState } from "react";
 import Spinner from 'react-bootstrap/Spinner';
 
 
 import "./Globe.css"
-import ImageViewer from "./ImageViewer";
+// import ImageViewer from "./ImageViewer";
 
 
 function Globe(props) {
     const refContainer = useRef(null);
     const [globeReady, setGlobeReady] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
       // Setup 3D renderer
@@ -31,7 +29,7 @@ function Globe(props) {
       // Other controls
       let interactionManager = new InteractionManager(renderer, camera, renderer.domElement);
 
-        
+      let imageDataArray = props.images
       imageDataArray.forEach((image, index) => {
         image.id = index
         image.size = 0.04
@@ -68,7 +66,7 @@ function Globe(props) {
         marker3dObject.addEventListener('click', (event) => {
           console.log("clicked...")
           console.log(ImageDataObject)
-          setSelectedImage(ImageDataObject)
+          props.setSelectedImage(ImageDataObject)
         });
 
         animate3dMarker(marker3dObject, marker3dCoordinates, ImageDataObject.latitude)
@@ -108,7 +106,6 @@ function Globe(props) {
               <div id="globeContainer" ref={refContainer}>
                 <Spinner id="globeLoadingIcon" style={{visibility: globeReady == false ? "visible" : "hidden"}} animation="border" letiant="secondary" />
                 </div>
-              <ImageViewer image={selectedImage} setImage={setSelectedImage} />
            </div>
 
 }
