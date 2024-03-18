@@ -37,7 +37,7 @@ You will deploy a web application called WorldView to the public internet. This 
 3. <details>
         <summary>Ensure the Client is configured to re-deploy automatically when a new commit is made to the repo for this assignment</summary>
         <br>
-          <img src="./Example/Part1-2.png" width=400/>
+          <img src="./Example/Part1-2.png"/>
       </details>
 
 
@@ -69,7 +69,7 @@ You will deploy a web application called WorldView to the public internet. This 
 3. <details>
         <summary>Ensure the API is configured to re-deploy automatically when a new commit is made to the repo for this assignment</summary>
         <br>
-          <img src="./Example/Part1-2.png" width=400/>
+          <img src="./Example/Part1-2.png"/>
       </details>
 
 <br>
@@ -77,7 +77,10 @@ You will deploy a web application called WorldView to the public internet. This 
 ### **Part 3: WorldView API (Filter the nulls)**
 
 1.  <details>
-        <summary>Some of the image objects returned from the unsplashed api do not contain latitude and longitude values</summary>
+        <summary>Some of the image objects returned from the unsplashed api do not contain latitude/longitude values. Configure the route in server.js to only return image objects with both a latitude and longitude value </summary>
         <br>
-          <img src="./Example/Part1-2.png" width=400/>
+          <img src="./Example/Part3.png"/>
       </details>
+      <br>
+      
+      - **if** an image is missing either latitude value **or** a longitude value, ensure it is not included in the response data
