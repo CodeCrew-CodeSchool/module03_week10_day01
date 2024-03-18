@@ -21,15 +21,15 @@ function Globe(props) {
 
     useEffect(() => {
       // Setup 3D renderer
-      const renderer = create3dRenderer(refContainer)
+      let renderer = create3dRenderer(refContainer)
       // Setup 3D world
-      const world = create3dWorld()
+      let world = create3dWorld()
       // Setup camera view of 3D world
-      const camera = create3dCamera()
+      let camera = create3dCamera()
       // Add camera controls
-      const cameraControls = createControls(camera, renderer)
+      let cameraControls = createControls(camera, renderer)
       // Other controls
-      const interactionManager = new InteractionManager(renderer, camera, renderer.domElement);
+      let interactionManager = new InteractionManager(renderer, camera, renderer.domElement);
 
         
       imageDataArray.forEach((image, index) => {
@@ -41,11 +41,11 @@ function Globe(props) {
       })
 
       // Create 3D Globe object
-      const Globe = createGlobe3dObject(imageDataArray)
+      let Globe = createGlobe3dObject(imageDataArray)
 
       Globe.customThreeObjectUpdate((marker3dObject, ImageDataObject) => {
         //Convert latitude, longitude and altitude values of marker to X, Y, and Z position values
-        var marker3dCoordinates = Globe.getCoords(ImageDataObject.latitude, ImageDataObject.longitude, ImageDataObject.altitude)
+        let marker3dCoordinates = Globe.getCoords(ImageDataObject.latitude, ImageDataObject.longitude, ImageDataObject.altitude)
         
         //Set the position of the 3d marker object to the calculated position
         marker3dObject.position.x = marker3dCoordinates.x
@@ -78,21 +78,24 @@ function Globe(props) {
       world.add(Globe);
       
       // Create 3D clouds object
-      const clouds3dObject = createClouds3dObject(Globe.getGlobeRadius())
+      let clouds3dObject = createClouds3dObject(Globe.getGlobeRadius())
+
+      let stars3dObject = createStars3dObject()
       // Add 3D clouds object to 3D world when globe is ready
       Globe.onGlobeReady(() => {
         setGlobeReady(true)
         world.add(clouds3dObject);
+        world.add(stars3dObject);
       });
 
 
-      // start animation loop
-      function animate() {
+      // start animation loop (How is this a loop? Answer: recursion)
+      function animate() { 
         cameraControls.update()
         interactionManager.update();
         clouds3dObject.rotation.y += (-0.006 * Math.PI / 180) * 10;  
         renderer.render(world, camera);
-        requestAnimationFrame(animate);
+        requestAnimationFrame(animate); //look up the requestAnimationFrame function see where it leads you :)
       }
       animate();
 
@@ -103,7 +106,7 @@ function Globe(props) {
 
     return <div>
               <div id="globeContainer" ref={refContainer}>
-                <Spinner id="globeLoadingIcon" style={{visibility: globeReady == false ? "visible" : "hidden"}} animation="border" variant="secondary" />
+                <Spinner id="globeLoadingIcon" style={{visibility: globeReady == false ? "visible" : "hidden"}} animation="border" letiant="secondary" />
                 </div>
               <ImageViewer image={selectedImage} setImage={setSelectedImage} />
            </div>
@@ -129,9 +132,9 @@ export default Globe;
 
 
 function create3dRenderer(referenceContainer) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  let renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
-  var rect = referenceContainer.current.getBoundingClientRect();
+  let rect = referenceContainer.current.getBoundingClientRect();
 
   
   renderer.setSize(rect.width, rect.height);
@@ -142,14 +145,14 @@ function create3dRenderer(referenceContainer) {
 }
 
 function create3dWorld() {
-  const scene = new THREE.Scene();
+  let scene = new THREE.Scene();
   scene.add(new THREE.AmbientLight(0xcccccc, Math.PI));
   scene.add(new THREE.DirectionalLight(0xffffff, 0.6 * Math.PI));
   return scene;
 }
 
 function create3dCamera() {
-  const camera = new THREE.PerspectiveCamera();
+  let camera = new THREE.PerspectiveCamera();
   camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   camera.position.z = 250;  
@@ -157,7 +160,7 @@ function create3dCamera() {
 }
 
 function createControls(camera, renderer) {
-  const controls = new OrbitControls(camera, renderer.domElement);
+  let controls = new OrbitControls(camera, renderer.domElement);
   controls.autoRotate = true;
   controls.autoRotateSpeed = -.3;
   controls.enableDamping = true;
@@ -171,13 +174,13 @@ function createControls(camera, renderer) {
 }
 
 function animate3dMarker(marker3dObject, marker3dCoordinates, markerLatitude) {
-  var startingCoordinates = {x: marker3dCoordinates.x, y: marker3dCoordinates.y, z: marker3dCoordinates.z}
+  let startingCoordinates = {x: marker3dCoordinates.x, y: marker3dCoordinates.y, z: marker3dCoordinates.z}
   if (markerLatitude >= 0) {
     startingCoordinates.y = startingCoordinates.y + 300
   }else if (markerLatitude < 0) {
     startingCoordinates.y = startingCoordinates.y - 300
   }
-  const tween = new TWEEN.Tween(startingCoordinates)
+  let tween = new TWEEN.Tween(startingCoordinates)
                       .to(marker3dCoordinates, 2000)
                       .easing(TWEEN.Easing.Quadratic.Out)
                       .onUpdate(() => {
@@ -194,20 +197,29 @@ function animate3dMarker(marker3dObject, marker3dCoordinates, markerLatitude) {
 }
 
 function createClouds3dObject(globeRadius) {
-  const cloudsObject = new THREE.Mesh(new THREE.SphereGeometry(globeRadius * (1 + 0.004), 75, 75));
+  let cloudsObject = new THREE.Mesh(new THREE.SphereGeometry(globeRadius * (1 + 0.004), 75, 75));
   new THREE.TextureLoader().load("./clouds.png", cloudsTexture => {
     cloudsObject.material = new THREE.MeshPhongMaterial({ map: cloudsTexture, transparent: true });
   });
   return cloudsObject;
 }
 
+function createStars3dObject(){
+  let backgroundObject = new THREE.Mesh(new THREE.SphereGeometry(1000, 15, 15))
+  new THREE.TextureLoader().load("./background.png", starsTexture => {
+    backgroundObject.material = new THREE.MeshPhongMaterial({ map: starsTexture, side: THREE.BackSide });
+  });
+
+  return backgroundObject
+}
+
 function createGlobe3dObject(markers) {
-  const globeObject = new ThreeGlobe()
+  let globeObject = new ThreeGlobe()
                           .globeImageUrl('./map.jpg')
                           .bumpImageUrl('./bumpmap.jpg')
                           .customLayerData(markers)
                           .customThreeObject(d => {
-                            var markerSphereMesh = new THREE.Mesh(new THREE.SphereGeometry(d.radius), new THREE.MeshLambertMaterial({color: d.color}))
+                            let markerSphereMesh = new THREE.Mesh(new THREE.SphereGeometry(d.radius), new THREE.MeshLambertMaterial({color: d.color}))
                             return markerSphereMesh
                           })
 
