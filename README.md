@@ -84,3 +84,7 @@ You will deploy a web application called WorldView to the public internet. This 
       <br>
       
       - **if** an image is missing either latitude value **or** a longitude value, ensure it is not included in the response data
+
+<br>
+
+### **Part 4: User Stories**
