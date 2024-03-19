@@ -87,4 +87,17 @@ You will deploy a web application called WorldView to the public internet. This 
 
 <br>
 
-### **Part 4: User Stories**
+### **Part 4: Connect the WorldView Client to the WorldView API**
+1.  <details>
+        <summary>Configure the WorldView Client fetch it's image data from the WorldView API instead of a local json file  </summary>
+        <br>
+          Everytime the page loads, you should get a different set of images.
+
+      <br/>
+          <img src="./Example/Part4.gif"/>
+      </details>
+      <br>
+
+
+
+### **Part 5: User Stories**
