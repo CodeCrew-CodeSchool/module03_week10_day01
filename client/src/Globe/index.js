@@ -1,38 +1,19 @@
 
 
+/*
+IMPORTANT
 
+This component is expecting an array of image objects to be passed to its 'images' property. 
 
-//DO NOT MODIFY THIS FILE 👇*
+The array of objects should be formatted like the contents of the data.json file in the src folder
 
+If this component isnt working as expected, its because you're not passing data to it's 'images' prop correctly.
 
-
-
-
-
-//DO NOT MODIFY THIS FILE 👇
-
-
-
+*/
 
 
 
-
-
-
-
-//DO NOT MODIFY THIS FILE 👇
-
-
-
-
-
-
-
-
-
-
-
-//DO NOT MODIFY THIS FILE 👇
+//YOU DO NOT NEED TO MODIFY THIS COMPONENT 👇*
 
 
 
@@ -46,7 +27,13 @@
 
 
 
-//DO NOT MODIFY THIS FILE 👇
+
+
+
+
+
+
+//YOU DO NOT NEED TO MODIFY THIS COMPONENT 👇
 
 
 
@@ -60,7 +47,111 @@
 
 
 
-//DO NOT MODIFY THIS FILE 👇
+
+
+
+
+
+
+
+
+
+
+
+
+//YOU DO NOT NEED TO MODIFY THIS COMPONENT 👇
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//YOU DO NOT NEED TO MODIFY THIS COMPONENT 👇
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//YOU DO NOT NEED TO MODIFY THIS COMPONENT 👇
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* This component utilzes a library for generating 3d graphics called THREE.js
+  
+  Checkout the site: https://threejs.org/ 
+
+*/
+
+
 
 import { useEffect } from "react";
 import ThreeGlobe from 'three-globe';
@@ -88,6 +179,7 @@ function Globe(props) {
   const [orbitalCameraPosition, setOribitalCameraPostion] = useState(null)
   const [internalSelectedImage, setInternalSelectedImage] = useState(null)
 
+  //1
   useEffect(() => {
     // Setup 3D renderer
     let renderer = create3dRenderer(refContainer)
@@ -181,6 +273,7 @@ function Globe(props) {
     };
   }, []);
 
+  //2
   useEffect(() => {
     if (globeReady) {
       let imageDataArray = props.images
@@ -195,6 +288,7 @@ function Globe(props) {
     }
   }, [props.images])
 
+  //3
   useEffect(() => {
     if (camera) {
       // Create a tween for smoothly transitioning the camera position
@@ -203,22 +297,28 @@ function Globe(props) {
         // Store the current camera position as the orbital position when a marker is focused
         setOribitalCameraPostion({ ...camera.position });
         let targetCameraPosition = globe.getCoords(internalSelectedImage.latitude, internalSelectedImage.longitude, 1);
-        tween.to(targetCameraPosition, 2000)
+        tween.to(targetCameraPosition, 1000)
           .easing(TWEEN.Easing.Quadratic.Out)
           .onUpdate(() => {
             camera.position.set(camera.position.x, camera.position.y, camera.position.z);
           })
           .onComplete(() => {
             props.setSelectedImage(internalSelectedImage);
+            cameraControls.autoRotate = false;
+            cameraControls.saveState()
           })
           .start();
       } else {
         // Ensure there is a stored orbital position before zooming out
         if (orbitalCameraPosition) {
-          tween.to(orbitalCameraPosition, 2000)
+          tween.to(orbitalCameraPosition, 800)
             .easing(TWEEN.Easing.Quadratic.Out)
             .onUpdate(() => {
               camera.position.set(camera.position.x, camera.position.y, camera.position.z);
+            })
+            .onComplete(() =>{
+              cameraControls.autoRotate = true;
+              cameraControls.saveState()
             })
             .start();
         }
@@ -232,10 +332,13 @@ function Globe(props) {
     }
   }, [markerFocused]);
   
-
+  //4 useEffects statements???? this is nuts
   useEffect(()=>{
     if(props.selectedImage == null){
       setMarkerFocused(false)
+    }else{
+      setInternalSelectedImage(props.selectedImage)
+      setMarkerFocused(true)
     }
 
   },[props.selectedImage])
