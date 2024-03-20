@@ -268,6 +268,22 @@ function Globe(props) {
     }
     animate();
 
+
+    // Register the event listener for the resize event
+    window.addEventListener('resize', () => {
+      // Check if the renderer and camera are initialized
+      if (renderer && camera) {
+        const { width, height } = refContainer.current.getBoundingClientRect();
+
+        // Update renderer size to match the globe container's dimensions
+        renderer.setSize(width, height);
+
+        // Update camera aspect ratio and recompute the projection matrix
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+      }
+    });
+
     return () => {
       refContainer.current.removeChild(renderer.domElement);
     };
@@ -316,14 +332,14 @@ function Globe(props) {
             .onUpdate(() => {
               camera.position.set(camera.position.x, camera.position.y, camera.position.z);
             })
-            .onComplete(() =>{
+            .onComplete(() => {
               cameraControls.autoRotate = true;
               cameraControls.saveState()
             })
             .start();
         }
       }
-  
+
       function animate(time) {
         requestAnimationFrame(animate);
         TWEEN.update(time);
@@ -331,17 +347,17 @@ function Globe(props) {
       animate();
     }
   }, [markerFocused]);
-  
+
   //4 useEffects statements???? this is nuts
-  useEffect(()=>{
-    if(props.selectedImage == null){
+  useEffect(() => {
+    if (props.selectedImage == null) {
       setMarkerFocused(false)
-    }else{
+    } else {
       setInternalSelectedImage(props.selectedImage)
       setMarkerFocused(true)
     }
 
-  },[props.selectedImage])
+  }, [props.selectedImage])
 
   return <div>
     <div id="globeContainer" ref={refContainer}>

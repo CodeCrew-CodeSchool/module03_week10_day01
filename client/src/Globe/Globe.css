@@ -1,5 +1,6 @@
 #globeContainer {
     height: 90vh;
+    overflow: hidden;
 }
 
 #globeLoadingIcon {

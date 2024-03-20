@@ -89,7 +89,7 @@ You will deploy a web application called WorldView to the public internet. This 
 
 ### **Part 4: Connect the WorldView Client to the WorldView API**
 1.  <details>
-        <summary>Configure the WorldView Client fetch it's image data from the WorldView API instead of a local json file  </summary>
+        <summary>Configure the WorldView Client to fetch it's image data from the WorldView API instead of a local json file  </summary>
         <br>
           Everytime the page loads, you should get a different set of images.
 
@@ -100,4 +100,20 @@ You will deploy a web application called WorldView to the public internet. This 
 
 
 
-### **Part 5: User Stories**
+### **Part 5: New Features**
+https://trello.com/b/ZiJ5zoPg/worldview-feature-map
+1. Complete all the feature requests outlined on [this project board](https://trello.com/b/ZiJ5zoPg/worldview-feature-map)
+   
+   - Copy this board to your own personal trello account
+  
+    <br>
+ 
+   - Complete each feature by creating a branch, making the changes, then creating a pull-request to main that includes the changes. ( EVERY NEW FEATURE SHOULD HAVE ITS OWN PULL REQUEST )
+  
+   - <details>
+        <summary>Add the pull request link to it's respective trello card as a comment </summary>
+        <br>
+
+        <img src="./Example/Part5.png"/>
+      </details>
+      <br>

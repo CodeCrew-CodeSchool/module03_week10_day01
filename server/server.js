@@ -5,7 +5,7 @@ const app = express();
 app.use(cors())
 
 
-const APIKEY = "be4f8c32aabd98bf2b94d401bc394458575125bb7b3453a3254a80cf80c5469d"
+const APIKEY = ""
 const URL = "https://api.unsplash.com/photos/random/?query=landscape&count=10&client_id=" + APIKEY
 
 app.get('/', async (req, res) => {
@@ -21,16 +21,12 @@ app.get('/', async (req, res) => {
         }
     })
 
-    imageData = imageData.filter(elem => {
-        if (elem.latitude == null || elem.longitude == null){
-            return false
-        }
-        return true
-    })
+    //Part 3: Filter the nulls out of imageData
+
 
     res.json(imageData);
 });
 
 app.listen(3001, () => {
-    console.log('Example app listening on port 3001!');
+    console.log('Worldview Api listening on port 3001!');
 });
