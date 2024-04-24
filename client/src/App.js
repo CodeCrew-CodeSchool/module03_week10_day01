@@ -4,6 +4,7 @@ import ImageViewer from "./ImageViewer";
 import { useState } from 'react';
 // import DataFetcher from './DataFetcher';
 import RefreshButton from './Refreshbutton';
+import ImageView from './ImageView';
 import imageDataArray from "./data.json" //👈DO NOT MODIFY THIS LINE
 
 
@@ -12,6 +13,10 @@ function App() {
   const [images, setImages] = useState(imageDataArray) //👈DO NOT MODIFY THIS LINE
 
  
+  const handleImageSelect = (image) => {
+    setSelectedImage(image);
+  };
+
   const handleRefresh = async () => {
     try {
       const response = await fetch('http://localhost:3001/');
@@ -37,6 +42,8 @@ function App() {
       <ImageViewer image={selectedImage} setImage={setSelectedImage} />    {/*what props are we passing to this component*/}
 
       {/* <DataFetcher setImage={setImages} /> */}
+
+      <ImageView images={images} onSelectImage={handleImageSelect} />
 
       <RefreshButton onClick={handleRefresh} />
   </div>
