@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors')
+// const fetch = require('node-fetch');
+
 
 const app = express();
 app.use(cors())
@@ -12,13 +14,21 @@ app.get('/', async (req, res) => {
     var response = await fetch(URL);
     var data = await response.json();
 
-    var imageData = data.map((image) => {
+    var filteredData = data.filter(image =>
+        image.location &&
+        image.location.position &&
+        image.location.position.latitude &&
+        image.location.position.longitude
+    );
+
+    var imageData = filteredData.map((image) => {
         return {
             image_url: image.urls.regular,
             location_name: image.location.name,
             latitude: image.location.position.latitude,
             longitude: image.location.position.longitude
         }
+        
     })
 
     //Part 3: Filter the nulls out of imageData
