@@ -2,7 +2,8 @@ import Header from './Header';
 import Globe from './Globe';
 import ImageViewer from "./ImageViewer";
 import { useState } from 'react';
-import DataFetcher from './DataFetcher';
+// import DataFetcher from './DataFetcher';
+import RefreshButton from './Refreshbutton';
 import imageDataArray from "./data.json" //👈DO NOT MODIFY THIS LINE
 
 
@@ -11,7 +12,15 @@ function App() {
   const [images, setImages] = useState(imageDataArray) //👈DO NOT MODIFY THIS LINE
 
  
-
+  const handleRefresh = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/');
+      const data = await response.json();
+      setImages(data);
+    } catch (error) {
+      console.error('Error fetching new images:', error);
+    }
+  };
 
   //Part 4: hmmm.. what do we do here?
   
@@ -27,7 +36,9 @@ function App() {
 
       <ImageViewer image={selectedImage} setImage={setSelectedImage} />    {/*what props are we passing to this component*/}
 
-      <DataFetcher setImage={setImages} />
+      {/* <DataFetcher setImage={setImages} /> */}
+
+      <RefreshButton onClick={handleRefresh} />
   </div>
   );
 }
